@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Expense Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* ===== CSS RESET & BASE ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            /* Colors - Soft Dark Mode */
+            --background: #0f0f1a;
+            --foreground: #f0f0f5;
+            --card: #16161f;
+            --card-foreground: #f0f0f5;
+            --popover: #1c1c28;
+            --popover-foreground: #f0f0f5;
+            --primary: #10b981;
+            --primary-foreground: #0f0f1a;
+            --secondary: #1e1e2d;
+            --secondary-foreground: #d1d1d9;
+            --muted: #1a1a26;
+            --muted-foreground: #8b8b9a;
+            --accent: #10b981;
+            --accent-foreground: #0f0f1a;
+            --destructive: #ef4444;
+            --destructive-foreground: #f0f0f5;
+            --border: #2a2a3d;
+            --input: #1a1a26;
+            --ring: #10b981;
+            --warning: #f59e0b;
+            --warning-foreground: #0f0f1a;
+            --sidebar: #0c0c14;
+            --sidebar-border: #1e1e2d;
+
+            /* Chart Colors */
+            --chart-1: #10b981;
+            --chart-2: #3b82f6;
+            --chart-3: #f59e0b;
+            --chart-4: #ec4899;
+            --chart-5: #8b5cf6;
+
+            /* Radius */
+            --radius: 0.75rem;
+            --radius-sm: 0.5rem;
+            --radius-lg: 1rem;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== LAYOUT ===== */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar);
+            border-right: 1px solid var(--sidebar-border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 40;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--sidebar-border);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), #059669);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-foreground);
+        }
+
+        .logo-text h1 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--foreground);
+        }
+
+        .logo-text span {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            color: var(--muted-foreground);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item a:hover {
+            background-color: var(--secondary);
+            color: var(--foreground);
+        }
+
+        .nav-item a.active {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+        }
+
+        .nav-item a.active:hover {
+            background-color: var(--primary);
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--sidebar-border);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            background-color: var(--secondary);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--chart-2), var(--chart-5));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .user-email {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .main-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .page-title h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--foreground);
+        }
+
+        .page-title p {
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+            margin-top: 0.25rem;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background-color: var(--card);
+            color: var(--foreground);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+        }
+
+        .btn-primary:hover {
+            background-color: #059669;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: var(--secondary-foreground);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--muted);
+        }
+
+        .btn-destructive {
+            background-color: transparent;
+            color: var(--destructive);
+            padding: 0.5rem;
+        }
+
+        .btn-destructive:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .btn-ghost {
+            background-color: transparent;
+            color: var(--muted-foreground);
+            padding: 0.5rem;
+        }
+
+        .btn-ghost:hover {
+            background-color: var(--secondary);
+            color: var(--foreground);
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--foreground);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-description {
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+            margin-top: 0.25rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        /* ===== BUDGET PROGRESS ===== */
+        .budget-card {
+            margin-bottom: 1.5rem;
+        }
+
+        .budget-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .budget-info {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .budget-spent {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--foreground);
+        }
+
+        .budget-total {
+            font-size: 1rem;
+            color: var(--muted-foreground);
+        }
+
+        .budget-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .budget-status.under {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--primary);
+        }
+
+        .budget-status.warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .budget-status.over {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--destructive);
+        }
+
+        .progress-container {
+            height: 12px;
+            background-color: var(--secondary);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.5s ease, background-color 0.3s ease;
+        }
+
+        .progress-bar.under {
+            background: linear-gradient(90deg, var(--primary), #34d399);
+        }
+
+        .progress-bar.warning {
+            background: linear-gradient(90deg, var(--warning), #fbbf24);
+        }
+
+        .progress-bar.over {
+            background: linear-gradient(90deg, var(--destructive), #f87171);
+        }
+
+        .budget-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        /* ===== STATS GRID ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            padding: 1.25rem;
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon.green {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--primary);
+        }
+
+        .stat-icon.blue {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--chart-2);
+        }
+
+        .stat-icon.orange {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .stat-icon.purple {
+            background-color: rgba(139, 92, 246, 0.1);
+            color: var(--chart-5);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--foreground);
+        }
+
+        .stat-change {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: var(--primary);
+        }
+
+        .stat-change.negative {
+            color: var(--destructive);
+        }
+
+        /* ===== CONTENT GRID ===== */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 1.5rem;
+        }
+
+        /* ===== EXPENSE TABLE ===== */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background-color: var(--secondary);
+        }
+
+        th:first-child {
+            border-top-left-radius: var(--radius);
+        }
+
+        th:last-child {
+            border-top-right-radius: var(--radius);
+            text-align: right;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+
+        td:last-child {
+            text-align: right;
+        }
+
+        tr:hover td {
+            background-color: var(--secondary);
+        }
+
+        .expense-title {
+            font-weight: 500;
+            color: var(--foreground);
+        }
+
+        .expense-date {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            margin-top: 0.125rem;
+        }
+
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .category-badge.food {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .category-badge.transport {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--chart-2);
+        }
+
+        .category-badge.shopping {
+            background-color: rgba(236, 72, 153, 0.1);
+            color: var(--chart-4);
+        }
+
+        .category-badge.bills {
+            background-color: rgba(139, 92, 246, 0.1);
+            color: var(--chart-5);
+        }
+
+        .category-badge.entertainment {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--primary);
+        }
+
+        .category-badge.other {
+            background-color: var(--secondary);
+            color: var(--muted-foreground);
+        }
+
+        .expense-amount {
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--muted-foreground);
+        }
+
+        .empty-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            opacity: 0.5;
+        }
+
+        /* ===== CHART PLACEHOLDER ===== */
+        .chart-card {
+            height: 100%;
+        }
+
+        .chart-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .chart-ring {
+            width: 180px;
+            height: 180px;
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-ring svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .chart-ring circle {
+            fill: none;
+            stroke-width: 24;
+            stroke-linecap: round;
+        }
+
+        .chart-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .chart-center-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--foreground);
+        }
+
+        .chart-center-label {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 480px;
+            margin: 1rem;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            color: var(--muted-foreground);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background-color: var(--secondary);
+            color: var(--foreground);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            padding: 1.25rem 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ===== FORM ===== */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--foreground);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 0.875rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted-foreground);
+            pointer-events: none;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            padding-left: 2.75rem;
+            font-size: 0.875rem;
+            color: var(--foreground);
+            background-color: var(--input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            border-color: var(--ring);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--muted-foreground);
+        }
+
+        .form-select {
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .select-arrow {
+            position: absolute;
+            right: 0.875rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted-foreground);
+            pointer-events: none;
+        }
+
+        .form-select option {
+            background-color: var(--popover);
+            color: var(--foreground);
+        }
+
+        .form-error {
+            font-size: 0.75rem;
+            color: var(--destructive);
+            margin-top: 0.375rem;
+            display: none;
+        }
+
+        .form-group.error .form-input,
+        .form-group.error .form-select {
+            border-color: var(--destructive);
+        }
+
+        .form-group.error .form-error {
+            display: block;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-title h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* ===== MOBILE OVERLAY ===== */
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 30;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--muted-foreground);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-icon">
+                        <i data-lucide="wallet" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>ExpenseTrack</h1>
+                        <span>Smart Finance</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <p class="nav-section-title">Menu</p>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="#" class="active" id="nav-dashboard">
+                            <i data-lucide="layout-dashboard" style="width: 20px; height: 20px;"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" id="nav-reports">
+                            <i data-lucide="bar-chart-3" style="width: 20px; height: 20px;"></i>
+                            Reports
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" id="nav-settings">
+                            <i data-lucide="settings" style="width: 20px; height: 20px;"></i>
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">JD</div>
+                    <div class="user-info">
+                        <p class="user-name" id="welcome-text">John Doe</p>
+                        <p class="user-email">john@example.com</p>
+                    </div>
+                    <button class="btn-ghost" id="logout-btn">
+                        <i data-lucide="log-out" style="width: 18px; height: 18px;"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i data-lucide="menu" style="width: 20px; height: 20px;"></i>
+                </button>
+                <div class="page-title">
+                    <h2 id="page-title-text">Dashboard</h2>
+                    <p id="page-subtitle-text">Track and manage your expenses</p>
+                </div>
+                <button class="btn btn-primary" id="addExpenseBtn">
+                    <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+                    Add Expense
+                </button>
+            </header>
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view-section">
+                <!-- Budget Progress Card -->
+            <div class="card budget-card">
+                <div class="card-content">
+                    <div class="budget-header">
+                        <div>
+                            <p style="font-size: 0.875rem; color: var(--muted-foreground); margin-bottom: 0.25rem;">
+                                Monthly Budget</p>
+                            <div class="budget-info">
+                                <span class="budget-spent" id="budgetSpent">₹0</span>
+                                <span class="budget-total" id="budgetLimitDisplay">/ ₹0</span>
+                                <button class="btn-ghost" style="padding: 0.25rem; height: auto; margin-left: 0.5rem;" id="edit-budget">
+                                    <i data-lucide="edit-2" style="width: 14px; height: 14px;"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="budget-status under" id="budgetStatus">
+                            <i data-lucide="trending-down" style="width: 16px; height: 16px;"></i>
+                            <span>₹0 remaining</span>
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar under" id="progressBar" style="width: 0%;"></div>
+                    </div>
+                    <div class="budget-details">
+                        <span>0%</span>
+                        <span id="progressPercent">0% used</span>
+                        <span>100%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="card stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">Total Expenses</span>
+                        <div class="stat-icon green">
+                            <i data-lucide="credit-card" style="width: 18px; height: 18px;"></i>
+                        </div>
+                    </div>
+                    <p class="stat-value" id="statTotalExpenses">₹0</p>
+                    <p class="stat-change positive" id="statChangeExpenses" style="display: none;"></p>
+                </div>
+
+                <div class="card stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">Transactions</span>
+                        <div class="stat-icon blue">
+                            <i data-lucide="receipt" style="width: 18px; height: 18px;"></i>
+                        </div>
+                    </div>
+                    <p class="stat-value" id="statTransactions">0</p>
+                    <p class="stat-change negative" id="statChangeTransactions" style="display: none;"></p>
+                </div>
+
+                <div class="card stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">Avg. per Day</span>
+                        <div class="stat-icon orange">
+                            <i data-lucide="calculator" style="width: 18px; height: 18px;"></i>
+                        </div>
+                    </div>
+                    <p class="stat-value" id="statAvgPerDay">₹0</p>
+                    <p class="stat-change positive" id="statChangeAvgPerDay" style="display: none;"></p>
+                </div>
+
+                <div class="card stat-card">
+                    <div class="stat-header">
+                        <span class="stat-label">Top Category</span>
+                        <div class="stat-icon purple">
+                            <i data-lucide="tag" style="width: 18px; height: 18px;"></i>
+                        </div>
+                    </div>
+                    <p class="stat-value" id="statTopCategory">-</p>
+                    <p class="stat-change" id="statChangeTopCategory" style="display: none;"></p>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- Expense Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i data-lucide="list" style="width: 18px; height: 18px;"></i>
+                            Recent Expenses
+                        </h3>
+                        <p class="card-description">Your latest transactions</p>
+                    </div>
+                    <div class="card-content" style="padding: 0;">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Expense</th>
+                                        <th>Category</th>
+                                        <th>Amount</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expenseTableBody">
+                                    <tr id="empty-state" style="display: none;">
+                                        <td colspan="4" class="empty-state">
+                                            <p>No expenses found. Add your first expense!</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Placeholder -->
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i data-lucide="pie-chart" style="width: 18px; height: 18px;"></i>
+                            Spending by Category
+                        </h3>
+                        <p class="card-description">This month breakdown</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-placeholder">
+                            <p style="font-size: 0.75rem; color: var(--muted-foreground); margin-top: 1.5rem; text-align: center;">
+                                <canvas id="expenseChart" style="max-height: 250px;"></canvas>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- Reports View -->
+            <style>
+                @media print {
+                    body { background: white !important; color: black !important; overflow: auto; height: auto; }
+                    .sidebar, .main-header, .stat-card, .btn, .modal-overlay, #dashboard-view, #settings-view { display: none !important; }
+                    #reports-view { display: block !important; margin: 0; padding: 0; }
+                    .card { box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; margin-bottom: 20px; }
+                    * { color: black !important; background: transparent !important; }
+                    canvas { max-width: 100% !important; }
+                    .view-section { padding: 0 !important; }
+                    .main-content { margin: 0 !important; padding: 0 !important; }
+                }
+            </style>
+            <div id="reports-view" class="view-section" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <div>
+                        <h2 style="font-size: 1.5rem; font-weight: 700;">Analytics Report</h2>
+                        <p style="color: var(--muted-foreground);">Daily spending and category breakdown</p>
+                    </div>
+                    <button class="btn" style="width: auto; padding: 0.5rem 1rem;" onclick="window.print()">
+                        <i data-lucide="printer" style="width: 16px; height: 16px;"></i> Print Report
+                    </button>
+                </div>
+
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="card-header">
+                        <h3 class="card-title"><i data-lucide="activity" style="width: 18px; height: 18px;"></i> Daily Spending</h3>
+                        <p class="card-description">Your expense timeline for the current month</p>
+                    </div>
+                    <div class="card-content">
+                        <div style="position: relative; height: 300px; width: 100%;">
+                            <canvas id="dailyExpenseChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i data-lucide="pie-chart" style="width: 18px; height: 18px;"></i> Spending by Category</h3>
+                        <p class="card-description">Total categorized summary</p>
+                    </div>
+                    <div class="card-content" style="padding: 0;">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th style="text-align: right;">Total Spent</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categorySummaryTable">
+                                    <tr id="category-empty-state">
+                                        <td colspan="2" style="text-align: center; padding: 2rem; color: var(--muted-foreground);">Locating data...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settings-view" class="view-section" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i data-lucide="settings" style="width: 18px; height: 18px;"></i>
+                            Application Settings
+                        </h3>
+                        <p class="card-description">Manage your preferences</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="form-group" style="max-width: 400px;">
+                            <label class="form-label" style="font-size: 1rem;">Profile Configuration</label>
+                            <p style="font-size: 0.875rem; color: var(--muted-foreground); margin-bottom: 1rem;">Update your account settings here.</p>
+                            <button class="btn btn-secondary" onclick="alert('Settings feature in development')">
+                                <i data-lucide="user" style="width: 16px; height: 16px;"></i> Edit Profile
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div class="modal-overlay" id="expenseModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Expense</h3>
+                <button class="modal-close" id="closeModalBtn">
+                    <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+                </button>
+            </div>
+            <form id="expenseForm">
+                <div class="modal-body">
+                    <div id="budget-alert" style="display: none; color: var(--destructive); margin-bottom: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-sm); font-size: 0.875rem;"></div>
+                    <div class="form-group">
+                        <label class="form-label" for="expenseTitle">Title</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">
+                                <i data-lucide="file-text" style="width: 18px; height: 18px;"></i>
+                            </span>
+                            <input type="text" id="expenseTitle" name="title" class="form-input"
+                                placeholder="Enter expense title" required>
+                        </div>
+                        <p class="form-error">Please enter a title</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="expenseAmount">Amount</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">
+                                <i data-lucide="dollar-sign" style="width: 18px; height: 18px;"></i>
+                            </span>
+                            <input type="number" id="expenseAmount" name="amount" class="form-input" placeholder="0.00"
+                                step="0.01" min="0" required>
+                        </div>
+                        <p class="form-error">Please enter a valid amount</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="expenseCategory">Category</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">
+                                <i data-lucide="tag" style="width: 18px; height: 18px;"></i>
+                            </span>
+                            <select id="expenseCategory" name="category" class="form-select" required>
+                                <option value="">Select a category</option>
+                                <option value="food">Food & Dining</option>
+                                <option value="transport">Transportation</option>
+                                <option value="shopping">Shopping</option>
+                                <option value="bills">Bills & Utilities</option>
+                                <option value="entertainment">Entertainment</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <span class="select-arrow">
+                                <i data-lucide="chevron-down" style="width: 18px; height: 18px;"></i>
+                            </span>
+                        </div>
+                        <p class="form-error">Please select a category</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="expenseDate">Date</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">
+                                <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
+                            </span>
+                            <input type="date" id="expenseDate" name="date" class="form-input" required>
+                        </div>
+                        <p class="form-error">Please select a date</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                        Add Expense
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Navigation View Toggling
+        const navDashboard = document.getElementById('nav-dashboard');
+        const navReports = document.getElementById('nav-reports');
+        const navSettings = document.getElementById('nav-settings');
+        
+        const dashboardView = document.getElementById('dashboard-view');
+        const reportsView = document.getElementById('reports-view');
+        const settingsView = document.getElementById('settings-view');
+
+        const pageTitleText = document.getElementById('page-title-text');
+        const pageSubtitleText = document.getElementById('page-subtitle-text');
+
+        function switchView(viewName) {
+            // Unset active class
+            navDashboard.classList.remove('active');
+            navReports.classList.remove('active');
+            navSettings.classList.remove('active');
+            
+            // Hide all views
+            dashboardView.style.display = 'none';
+            reportsView.style.display = 'none';
+            settingsView.style.display = 'none';
+
+            if (viewName === 'dashboard') {
+                navDashboard.classList.add('active');
+                dashboardView.style.display = 'block';
+                pageTitleText.textContent = 'Dashboard';
+                pageSubtitleText.textContent = 'Track and manage your expenses';
+            } else if (viewName === 'reports') {
+                navReports.classList.add('active');
+                reportsView.style.display = 'block';
+                pageTitleText.textContent = 'Reports';
+                pageSubtitleText.textContent = 'Analytics and spending breakdown';
+            } else if (viewName === 'settings') {
+                navSettings.classList.add('active');
+                settingsView.style.display = 'block';
+                pageTitleText.textContent = 'Settings';
+                pageSubtitleText.textContent = 'Manage your application preferences';
+            }
+            // re-init icons if needed
+            lucide.createIcons();
+        }
+
+        navDashboard.addEventListener('click', (e) => { e.preventDefault(); switchView('dashboard'); });
+        navReports.addEventListener('click', (e) => { e.preventDefault(); switchView('reports'); });
+        navSettings.addEventListener('click', (e) => { e.preventDefault(); switchView('settings'); });
+
+        // Modal functions
+        const addExpenseBtn = document.getElementById('addExpenseBtn');
+        const expenseModal = document.getElementById('expenseModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        function openModal() {
+            expenseModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            if (document.getElementById('expenseDate')) {
+                document.getElementById('expenseDate').valueAsDate = new Date();
+            }
+        }
+
+        function closeModal() {
+            expenseModal.classList.remove('active');
+            document.body.style.overflow = '';
+            const form = document.getElementById('expenseForm');
+            if (form) form.reset();
+            const alert = document.getElementById('budget-alert');
+            if (alert) alert.style.display = 'none';
+        }
+
+        addExpenseBtn.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+
+        expenseModal.addEventListener('click', (e) => {
+            if (e.target === expenseModal) closeModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && expenseModal.classList.contains('active')) closeModal();
+        });
+
+        // Mobile sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.add('open');
+            sidebarOverlay.classList.add('active');
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('active');
+        });
+    </script>
+</body>
+
+</html>
