@@ -22,7 +22,7 @@ A full-stack, multi-user Expense Tracker built with Vanilla HTML/CSS/JS, Node.js
     const db = mysql.createPool({
         host: process.env.DB_HOST || 'localhost',
         user: process.env.DB_USER || 'root',
-        password: process.env.DB_PASSWORD || 'Sanskar@24', // <--- Ensure this matches your local password!
+        password: process.env.DB_PASSWORD // <--- Ensure this matches your local password!
         database: process.env.DB_NAME || 'expense_tracker',
         // ...
     });
