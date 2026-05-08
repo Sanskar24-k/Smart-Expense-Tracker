@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -7,7 +8,7 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key'; // In prod, use environment variable
+const JWT_SECRET = process.env.JWT_SECRET; // In prod, use environment variable
 
 app.use(cors());
 app.use(express.json());
@@ -17,7 +18,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const db = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || 'Sanskar@24',
+    password: process.env.DB_PASSWORD ,
     database: process.env.DB_NAME || 'expense_tracker',
     waitForConnections: true,
     connectionLimit: 10,
